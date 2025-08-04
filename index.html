@@ -2,167 +2,368 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Req Fitur By Noroshi</title>
+  <title>Noroshi Request System</title>
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       font-family: 'Courier New', monospace;
-      background-color: black;
-      color: #00ff99;
+      height: 100vh;
       overflow: hidden;
+      transition: background 0.5s ease;
     }
-
-    audio {
+    body.login-bg {
+      background: url('https://media.giphy.com/media/qgQUggAC3Pfv687qPC/giphy.gif') no-repeat center center fixed;
+      background-size: cover;
+      color: #00ff99;
+    }
+    body.register-bg {
+      background: url('https://files.catbox.moe/vyv7h3.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #ffffff;
+    }
+    body.user-bg {
+      background: url('https://i.pinimg.com/originals/f6/96/b6/f696b67d99222fe8428452e760e4f82b.gif') no-repeat center center fixed;
+      background-size: cover;
+      color: #00ff99;
+    }
+    body.admin-bg {
+      background: url('https://images.unsplash.com/photo-1622455270602-0705705a9e4d?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: #00ff99;
+    }
+    .container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 2;
+    }
+    .pp {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 3px solid #00ff99;
+      margin-bottom: 10px;
+    }
+    .name {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .desc {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .btn {
+      display: block;
+      width: 220px;
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 16px;
+      color: white;
+      background: #111;
+      border: 1px solid #00ff99;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: #00ff99;
+      color: black;
+    }
+    input {
+      width: 80%;
+      padding: 8px;
+      margin: 5px 0;
+      background: #000;
+      border: 1px solid #00ff99;
+      color: #00ff99;
+    }
+    #loginForm, #registerForm, #formInput, #adminLoginForm {
       display: none;
+      margin-top: 20px;
     }
-
-    #overlayCanvas {
+    #resultBox {
+      display: none;
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      width: 80%;
+      height: 75%;
+      background: rgba(0, 0, 0, 0.92);
+      border: 2px solid #00ff99;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 0 0 30px #00ff99;
+      z-index: 2;
+    }
+    canvas#starfield {
       position: fixed;
       top: 0;
       left: 0;
-      z-index: -1;
-    }
-
-    .container {
-      position: relative;
       z-index: 1;
-      max-width: 500px;
-      margin: 50px auto;
-      background: rgba(0, 0, 0, 0.85);
-      padding: 20px;
-      border-radius: 10px;
-      border: 2px solid #00ff99;
-      box-shadow: 0 0 10px #00ff99;
+      pointer-events: none;
     }
-
-    h2, h3 {
-      text-align: center;
-      color: #00ff99;
-    }
-
-    textarea, input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 5px;
-      border: 1px solid #00ff99;
-      background-color: black;
-      color: #00ff99;
-    }
-
-    button {
-      background: #002a20;
-      font-weight: bold;
+    .delete-btn {
+      color: red;
+      margin-left: 10px;
       cursor: pointer;
     }
-
-    button:hover {
-      background: #005544;
-    }
-
-    #reqListDisplay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      padding: 40px;
-      width: 100vw;
-      height: 100vh;
-      box-sizing: border-box;
-      background-image: url('https://files.catbox.moe/7l72e3.jpeg');
-      background-size: cover;
-      background-position: center;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      overflow-y: auto;
-    }
-
-    .reqBox {
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid #00ff99;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px;
-      width: 80%;
-      max-width: 600px;
-      box-shadow: 0 0 5px #00ff99;
+    .info-box {
+      margin-top: 10px;
+      font-size: 14px;
       color: #00ff99;
+      display: none;
     }
   </style>
 </head>
-<body>
-  <audio id="bgMusic" autoplay loop>
-    <source src="https://c.termai.cc/a97/1Ncl0S" type="audio/mp3">
-  </audio>
+<body class="login-bg">
+<audio id="bgAudio" muted autoplay loop></audio>
+<canvas id="starfield"></canvas>
 
-  <canvas id="overlayCanvas"></canvas>
-
-  <div class="container" id="mainUI">
-    <h2> Kirim Pesan Req</h2>
-    <textarea id="reqInput" placeholder="Tulis Fitur Yang Mau Di Buat..."></textarea>
-    <button onclick="kirimReq()">📨 Kirim</button>
-    <h3>🔐 Masukkan Password untuk Melihat List Req</h3>
-    <input type="password" id="passwordInput" placeholder="Password...">
-    <button onclick="bukaCanvas()">🔓 Buka</button>
+<div class="container" id="mainBox">
+  <img src="https://files.catbox.moe/5zkxd7.jpeg" alt="PP" class="pp">
+  <div class="name">Noroshi</div>
+  <div class="desc">Request System Interface v1.0</div>
+  <button class="btn" onclick="showLogin()">🔐 Login</button>
+  <button class="btn" onclick="showRegister()">🧾 Daftar</button>
+  <button class="btn" onclick="showAdminLogin()">🛡️ Login Admin</button>
+  <button class="btn" onclick="toggleInfo()">❔ Apa itu Noroshi Request System</button>
+  <div class="info-box" id="infoBox">
+    💡 <strong>Noroshi Request System</strong> adalah sistem untuk mengajukan ide atau fitur ke developer. <br>
+    Admin akan meninjau semua request dari user.
   </div>
 
-  <div id="reqListDisplay"></div>
+  <div id="loginForm">
+    <input type="text" id="loginUsername" placeholder="Username"><br>
+    <input type="password" id="loginPassword" placeholder="Password"><br>
+    <button class="btn" onclick="login()">Masuk</button>
+  </div>
 
-  <script>
-    const canvas = document.getElementById('overlayCanvas');
-    const ctx = canvas.getContext('2d');
-    const bgMusic = document.getElementById('bgMusic');
-    const reqList = [];
+  <div id="registerForm">
+    <input type="text" id="registerUsername" placeholder="Username baru"><br>
+    <input type="password" id="registerPassword" placeholder="Password baru"><br>
+    <button class="btn" onclick="register()">Daftar Akun</button>
+  </div>
 
-    function kirimReq() {
-      const val = document.getElementById("reqInput").value.trim();
-      if (!val) return alert("⚠️ Teks kosong.");
-      reqList.push(val);
-      alert("✅ Pesan berhasil disimpan.");
-      document.getElementById("reqInput").value = "";
+  <div id="adminLoginForm">
+    <input type="text" id="adminUser" placeholder="Admin Username"><br>
+    <input type="password" id="adminPass" placeholder="Admin Password"><br>
+    <button class="btn" onclick="loginAdmin()">Masuk Admin</button>
+  </div>
+
+  <div id="formInput">
+    <input type="text" id="requestInput" placeholder="Tulis fitur yang kamu mau..."><br>
+    <button class="btn" onclick="simpanRequest()">Kirim Request</button><br>
+    <button class="btn" id="lihatRequestBtn" style="display:none" onclick="tampilkanRequest()">Lihat Semua Request</button>
+    <button class="btn" onclick="kembaliKeMenuUtama()">🔙 Kembali ke Halaman Utama</button>
+  </div>
+</div>
+
+<div id="resultBox">
+  <h3>🧠 Semua Request Fitur:</h3>
+  <pre id="requestList"></pre>
+</div>
+
+<script>
+  let semuaRequest = JSON.parse(localStorage.getItem("noroshi_requests")) || [];
+  let semuaAkun = JSON.parse(localStorage.getItem("noroshi_akun")) || {};
+  let currentUser = null;
+  const adminUsername = "Kyy";
+  const adminPassword = "200812";
+
+  function toggleInfo() {
+    const box = document.getElementById("infoBox");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+  }
+
+  function showLogin() {
+    document.body.className = "login-bg";
+    document.getElementById("loginForm").style.display = "block";
+    document.getElementById("registerForm").style.display = "none";
+    document.getElementById("adminLoginForm").style.display = "none";
+    document.getElementById("formInput").style.display = "none";
+    document.getElementById("resultBox").style.display = "none";
+    document.getElementById("mainBox").style.display = "block";
+  }
+
+  function showRegister() {
+    document.body.className = "register-bg";
+    document.getElementById("registerForm").style.display = "block";
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("adminLoginForm").style.display = "none";
+    document.getElementById("formInput").style.display = "none";
+    document.getElementById("resultBox").style.display = "none";
+    document.getElementById("mainBox").style.display = "block";
+  }
+
+  function showAdminLogin() {
+    document.body.className = "login-bg";
+    document.getElementById("adminLoginForm").style.display = "block";
+    document.getElementById("registerForm").style.display = "none";
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("formInput").style.display = "none";
+    document.getElementById("resultBox").style.display = "none";
+    document.getElementById("mainBox").style.display = "block";
+  }
+
+  function register() {
+    const username = document.getElementById("registerUsername").value.trim();
+    const password = document.getElementById("registerPassword").value.trim();
+    if (!username || !password) return alert("⚠️ Isi semua kolom!");
+    if (semuaAkun[username]) return alert("❌ Username sudah dipakai!");
+    semuaAkun[username] = password;
+    localStorage.setItem("noroshi_akun", JSON.stringify(semuaAkun));
+    alert("✅ Akun berhasil dibuat!");
+    showLogin();
+  }
+
+  function login() {
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+    if (semuaAkun[username] && semuaAkun[username] === password) {
+      alert("✅ Login berhasil!");
+      currentUser = username;
+      document.body.className = "user-bg";
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("registerForm").style.display = "none";
+      document.getElementById("formInput").style.display = "block";
+      document.getElementById("lihatRequestBtn").style.display = "none";
+    } else {
+      alert("❌ Username atau password salah!");
     }
+  }
 
-    function bukaCanvas() {
-      const password = document.getElementById("passwordInput").value;
-      if (password !== "Noroshi") return alert("❌ Password salah.");
-      if (reqList.length === 0) return alert("📭 Tidak ada pesan tersimpan.");
+  function loginAdmin() {
+    const user = document.getElementById("adminUser").value.trim();
+    const pass = document.getElementById("adminPass").value.trim();
+    if (user === adminUsername && pass === adminPassword) {
+      alert("✅ Selamat datang admin!");
+      currentUser = user;
+      document.body.className = "admin-bg";
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("registerForm").style.display = "none";
+      document.getElementById("adminLoginForm").style.display = "none";
+      document.getElementById("formInput").style.display = "block";
+      document.getElementById("lihatRequestBtn").style.display = "block";
+    } else {
+      alert("❌ Login admin gagal!");
+    }
+  }
 
-      // Sembunyikan form awal
-      document.getElementById("mainUI").style.display = "none";
+  function simpanRequest() {
+    const input = document.getElementById("requestInput").value.trim();
+    if (!input) return alert("⚠️ Input kosong!");
+    semuaRequest.push(`${currentUser}: ${input}`);
+    localStorage.setItem("noroshi_requests", JSON.stringify(semuaRequest));
+    alert("📩 Request berhasil dikirim!");
+    document.getElementById("requestInput").value = "";
+  }
 
-      // Tampilkan latar dan daftar
-      const display = document.getElementById("reqListDisplay");
-      display.style.display = "flex";
+  function tampilkanRequest() {
+    if (currentUser !== adminUsername) return alert("❌ Hanya admin yang bisa melihat request.");
+    document.getElementById("mainBox").style.display = "none";
+    document.getElementById("resultBox").style.display = "block";
+    let listHTML = semuaRequest.map((req, i) =>
+      `${i + 1}. ${req} <span class="delete-btn" onclick="hapusRequest(${i})">[hapus]</span>`
+    ).join("\n");
+    document.getElementById("requestList").innerHTML = listHTML || "Belum ada request apapun.";
+  }
 
-      // Isi daftar
-      display.innerHTML = "<h2>📂 Daftar Pesan Rahasia</h2>";
-      reqList.forEach((req, i) => {
-        const box = document.createElement("div");
-        box.className = "reqBox";
-        box.textContent = `${i + 1}. ${req}`;
-        display.appendChild(box);
+  function hapusRequest(index) {
+    if (confirm("Yakin mau hapus request ini?")) {
+      semuaRequest.splice(index, 1);
+      localStorage.setItem("noroshi_requests", JSON.stringify(semuaRequest));
+      tampilkanRequest();
+    }
+  }
+
+  function kembaliKeMenuUtama() {
+    currentUser = null;
+    document.body.className = "login-bg";
+    document.getElementById("formInput").style.display = "none";
+    document.getElementById("mainBox").style.display = "block";
+    document.getElementById("lihatRequestBtn").style.display = "none";
+    document.getElementById("resultBox").style.display = "none";
+  }
+
+  // 🌠 Bintang animasi
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createStars(count) {
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.5,
+        speed: Math.random() * 0.8 + 0.2
       });
     }
+  }
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
-    function enableMusicOnClick() {
-      bgMusic.play().catch(() => {});
-      document.removeEventListener("click", enableMusicOnClick);
-    }
-
-    window.addEventListener("load", () => {
-      bgMusic.play().catch(() => {
-        document.addEventListener("click", enableMusicOnClick);
-      });
+  function animateStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00ff99';
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      ctx.fill();
+      star.y += star.speed;
+      if (star.y > canvas.height) {
+        star.y = 0;
+        star.x = Math.random() * canvas.width;
+      }
     });
-  </script>
+    requestAnimationFrame(animateStars);
+  }
+
+  resizeCanvas();
+  createStars(150);
+  animateStars();
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+    createStars(150);
+  });
+
+  // 🎵 Playlist + Auto Unmute
+  const playlist = [
+    { title: "Gata Only", url: "https://files.catbox.moe/lrbylu.mp4", type: "audio/mp4" },
+    { title: "Somebody Pleasure", url: "https://files.catbox.moe/y5s2lo.mpeg", type: "audio/mpeg" },
+    { title: "Love Your Self", url: "https://files.catbox.moe/exyub0.mp4", type: "audio/mp4" },
+    { title: "Last Child", url: "https://files.catbox.moe/c4uj5k.mpeg", type: "audio/mpeg" }
+  ];
+
+  const audio = document.getElementById("bgAudio");
+  let currentTrack = 0;
+
+  function playNextTrack() {
+    const track = playlist[currentTrack];
+    audio.src = track.url;
+    audio.type = track.type;
+    audio.play().catch(() => {});
+  }
+
+  audio.addEventListener("ended", () => {
+    currentTrack = (currentTrack + 1) % playlist.length;
+    playNextTrack();
+  });
+
+  window.onload = () => {
+    playNextTrack();
+    document.body.addEventListener("click", () => {
+      audio.muted = false;
+      audio.play().catch(() => {});
+    }, { once: true });
+  };
+</script>
 </body>
 </html>
