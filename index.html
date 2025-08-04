@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Req Fitur By Noroshi</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background-color: black;
+      color: #00ff99;
+      overflow: hidden;
+    }
+
+    audio {
+      display: none;
+    }
+
+    #overlayCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 500px;
+      margin: 50px auto;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #00ff99;
+      box-shadow: 0 0 10px #00ff99;
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #00ff99;
+    }
+
+    textarea, input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #00ff99;
+      background-color: black;
+      color: #00ff99;
+    }
+
+    button {
+      background: #002a20;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005544;
+    }
+
+    #reqListDisplay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 40px;
+      width: 100vw;
+      height: 100vh;
+      box-sizing: border-box;
+      background-image: url('https://files.catbox.moe/7l72e3.jpeg');
+      background-size: cover;
+      background-position: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+    }
+
+    .reqBox {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #00ff99;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px;
+      width: 80%;
+      max-width: 600px;
+      box-shadow: 0 0 5px #00ff99;
+      color: #00ff99;
+    }
+  </style>
+</head>
+<body>
+  <audio id="bgMusic" autoplay loop>
+    <source src="https://c.termai.cc/a97/1Ncl0S" type="audio/mp3">
+  </audio>
+
+  <canvas id="overlayCanvas"></canvas>
+
+  <div class="container" id="mainUI">
+    <h2> Kirim Pesan Req</h2>
+    <textarea id="reqInput" placeholder="Tulis Fitur Yang Mau Di Buat..."></textarea>
+    <button onclick="kirimReq()">📨 Kirim</button>
+    <h3>🔐 Masukkan Password untuk Melihat List Req</h3>
+    <input type="password" id="passwordInput" placeholder="Password...">
+    <button onclick="bukaCanvas()">🔓 Buka</button>
+  </div>
+
+  <div id="reqListDisplay"></div>
+
+  <script>
+    const canvas = document.getElementById('overlayCanvas');
+    const ctx = canvas.getContext('2d');
+    const bgMusic = document.getElementById('bgMusic');
+    const reqList = [];
+
+    function kirimReq() {
+      const val = document.getElementById("reqInput").value.trim();
+      if (!val) return alert("⚠️ Teks kosong.");
+      reqList.push(val);
+      alert("✅ Pesan berhasil disimpan.");
+      document.getElementById("reqInput").value = "";
+    }
+
+    function bukaCanvas() {
+      const password = document.getElementById("passwordInput").value;
+      if (password !== "Noroshi") return alert("❌ Password salah.");
+      if (reqList.length === 0) return alert("📭 Tidak ada pesan tersimpan.");
+
+      // Sembunyikan form awal
+      document.getElementById("mainUI").style.display = "none";
+
+      // Tampilkan latar dan daftar
+      const display = document.getElementById("reqListDisplay");
+      display.style.display = "flex";
+
+      // Isi daftar
+      display.innerHTML = "<h2>📂 Daftar Pesan Rahasia</h2>";
+      reqList.forEach((req, i) => {
+        const box = document.createElement("div");
+        box.className = "reqBox";
+        box.textContent = `${i + 1}. ${req}`;
+        display.appendChild(box);
+      });
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function enableMusicOnClick() {
+      bgMusic.play().catch(() => {});
+      document.removeEventListener("click", enableMusicOnClick);
+    }
+
+    window.addEventListener("load", () => {
+      bgMusic.play().catch(() => {
+        document.addEventListener("click", enableMusicOnClick);
+      });
+    });
+  </script>
+</body>
+</html>
